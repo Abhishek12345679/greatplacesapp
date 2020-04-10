@@ -5,8 +5,19 @@ import { AppLoading } from "expo";
 
 import * as Font from "expo-font";
 
+import { combineReducers, createStore, applyMiddleware } from "redux";
+import { Provider } from "react-redux";
+import ReduxThunk from "redux-thunk";
+import PlacesReducer from "./store/Places-Reducer";
+
 export default function App() {
   const [loaded, setLoaded] = useState(false);
+
+  const rootReducer = combineReducers({
+    places: PlacesReducer,
+  });
+
+  const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
 
   //fetch the fonts to use in AppLoading as an async fn
 
@@ -18,12 +29,18 @@ export default function App() {
   };
 
   if (!loaded) {
-    <AppLoading
-      startAsync={fetchFonts}
-      onFinish={() => setLoaded(true)}
-      onError={(err) => console.log(err)}
-    />;
+    return (
+      <AppLoading
+        startAsync={fetchFonts}
+        onFinish={() => setLoaded(true)}
+        onError={(err) => console.log(err)}
+      />
+    );
   }
 
-  return <PlacesNavigator />;
+  return (
+    <Provider store={store}>
+      <PlacesNavigator />
+    </Provider>
+  );
 }

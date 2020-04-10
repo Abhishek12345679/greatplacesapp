@@ -1,1 +1,4 @@
-export default {};
+export default {
+    primaryColor: "#000",
+    accentColor: "#fff",
+};

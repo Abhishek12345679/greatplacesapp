@@ -10,11 +10,31 @@ import AddNewPlaceScreen from "../screens/AddNewPlaceScreen";
 
 enableScreens();
 
-const placesStackNavigator = createStackNavigator(
+const AddPlacesNavigator = createStackNavigator(
+  {
+    Add: AddNewPlaceScreen,
+  },
+  {
+    defaultNavigationOptions: {},
+    headerMode: "none"
+  }
+);
+
+const HomeNavigator = createStackNavigator(
   {
     Home: HomeScreen,
+  },
+  {
+    defaultNavigationOptions: {},
+    headerMode: "none",
+  }
+);
+
+const placesStackNavigator = createStackNavigator(
+  {
+    Home: HomeNavigator,
+    Add: AddPlacesNavigator,
     Details: DetailsScreen,
-    Add: AddNewPlaceScreen,
   },
   {
     headerMode: "none",
