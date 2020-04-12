@@ -11,37 +11,31 @@ import MapScreen from "../screens/MapScreen";
 enableScreens();
 
 const AddPlacesNavigator = createStackNavigator({
-  Add: AddNewPlaceScreen,
+    Add: AddNewPlaceScreen,
 });
 
 const DetailsNavigator = createStackNavigator({
-  Details: DetailsScreen,
+    Details: DetailsScreen,
 });
 
-const HomeNavigator = createStackNavigator(
-  {
+const HomeNavigator = createStackNavigator({
     Home: HomeScreen,
-  },
-  {
+}, {
     defaultNavigationOptions: {},
     headerMode: "none",
-  }
-);
-
-const MapsNavigator = createStackNavigator({
-  Maps: MapScreen,
 });
 
-const placesStackNavigator = createStackNavigator(
-  {
+const MapsNavigator = createStackNavigator({
+    Maps: MapScreen,
+});
+
+const placesStackNavigator = createStackNavigator({
     Home: HomeNavigator,
     Details: DetailsNavigator,
     Add: AddPlacesNavigator,
     Maps: MapsNavigator,
-  },
-  {
+}, {
     headerMode: "none",
-  }
-);
+});
 
 export default createAppContainer(placesStackNavigator);

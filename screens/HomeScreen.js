@@ -1,7 +1,7 @@
 /* TODO : Outsource the actionButton component so that android can have 
 its native like action button */
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -28,6 +28,7 @@ const HomeScreen = (props) => {
 
   const places = useSelector((state) => state.places.places);
   const notData = !!(places.length === 0);
+  const [visible, setVisible] = useState(false);
   return (
     <View style={styles.screen}>
       <StatusBar barStyle="dark-content" />
@@ -45,7 +46,9 @@ const HomeScreen = (props) => {
         >
           <TouchableOpacity
             onPress={() => {
-              dispatch(PlacesActions.deleteAll());
+              dispatch(PlacesActions.deleteAll())
+                .then(() => setVisible(true))
+                .catch((err) => console.log(err));
             }}
           >
             <View style={styles.actionbtn}>
@@ -85,6 +88,14 @@ const HomeScreen = (props) => {
           <Text style={styles.fallbackText}>Nothing to Show 🙅🏽‍♂️</Text>
         </View>
       )}
+      <Snackbar
+        visible={visible}
+        onDismiss={() => setVisible(false)}
+        duration={2000}
+        style={{ backgroundColor: Colors.primaryColor, height: 50 }}
+      >
+        Added to cart 🎒
+      </Snackbar>
     </View>
   );
 };

@@ -4,14 +4,21 @@ import MapView, { Marker } from "react-native-maps";
 
 const MapScreen = (props) => {
   const [markedLocation, setMarkedLocation] = useState();
+
+  const readonly = props.navigation.getParam("readonly");
+  const initialLocation = props.navigation.getParam("initialLocation");
+
+  useEffect(() => {
+    props.navigation.setParams({ markedLoc: markedLocation });
+  }, [markedLocation]);
   const mapRegion = {
-    latitude: 26.7124736,
-    longitude: 89.11257599999999,
+    latitude: initialLocation ? initialLocation.lat : 26.7124736,
+    longitude: initialLocation ? initialLocation.lng : 89.11257599999999,
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   };
   const putMarker = (event) => {
-    console.log(event);
+    // console.log(event);
     setMarkedLocation({
       latitude: event.nativeEvent.coordinate.latitude,
       longitude: event.nativeEvent.coordinate.longitude,
@@ -38,12 +45,12 @@ const MapScreen = (props) => {
       latitude: markedLocation.latitude,
       longitude: markedLocation.longitude,
     };
-    console.log(markedLocation);
+    // console.log(markedLocation);
   }
 
   return (
     <MapView style={styles.map} initialRegion={mapRegion} onPress={putMarker}>
-      {markerCoordinates && (
+      {!readonly && markerCoordinates && (
         <Marker title="pinned location" coordinate={markerCoordinates} />
       )}
     </MapView>
@@ -51,10 +58,16 @@ const MapScreen = (props) => {
 };
 
 MapScreen.navigationOptions = (navData) => {
+  const readonly = navData.navigation.getParam("readonly");
+  const markedLocation = navData.navigation.getParam("markedLoc");
   const saveFn = navData.navigation.getParam("saveLocation");
   return {
     headerRight: () => (
-      <TouchableOpacity onPress={saveFn} style={styles.headerButton}>
+      <TouchableOpacity
+        onPress={saveFn}
+        style={styles.headerButton}
+        disabled={!!!markedLocation}
+      >
         <Text style={styles.headerRightText}>save</Text>
       </TouchableOpacity>
     ),
@@ -67,10 +80,12 @@ const styles = StyleSheet.create({
   },
   headerButton: {
     marginHorizontal: 20,
+    width:10
   },
   headerRightText: {
-    fontFamily: "apple",
-    fontSize: 16,
+    fontFamily: "apple-bold",
+    fontSize: 18,
+    color: "orange",
   },
 });
 
