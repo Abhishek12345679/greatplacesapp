@@ -1,7 +1,7 @@
 /* TODO : Outsource the actionButton component so that android can have 
 its native like action button */
 
-import React from "react";
+import React, { useEffect } from "react";
 import {
   View,
   Text,
@@ -10,14 +10,22 @@ import {
   StatusBar,
   Platform,
   TouchableOpacity,
-  ScrollView,
 } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
 import ListItem from "../components/ListItem";
 
+import * as PlacesActions from "../store/Places-action";
+import { useDispatch } from "react-redux";
+
 const HomeScreen = (props) => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(PlacesActions.loadPlaces());
+  }, [dispatch]);
+
   const places = useSelector((state) => state.places.places);
   const notData = !!(places.length === 0);
   return (
@@ -28,69 +36,53 @@ const HomeScreen = (props) => {
           <Text style={styles.headerText}>Great</Text>
           <Text style={styles.headerText}>Places</Text>
         </View>
-        <TouchableOpacity
-          onPress={() => {
-            props.navigation.navigate("Add");
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
           }}
         >
-          <View style={styles.actionbtn}>
-            <Ionicons name="ios-add" size={23} color="white" />
-          </View>
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              dispatch(PlacesActions.deleteAll());
+            }}
+          >
+            <View style={styles.actionbtn}>
+              <Ionicons name="ios-trash" size={23} color="red" />
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              props.navigation.navigate("Add");
+            }}
+          >
+            <View style={styles.actionbtn}>
+              <Ionicons name="ios-add" size={23} color="white" />
+            </View>
+          </TouchableOpacity>
+        </View>
       </View>
-      {!notData && (
+      {!notData ? (
         <FlatList
           keyExtractor={(item) => item.id}
           data={places}
           renderItem={(itemData) => (
             <ListItem
               title={itemData.item.title}
-              image={
-                "https://images.pexels.com/photos/2659475/pexels-photo-2659475.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
-              }
-              address={"6th Imperial Avenue"}
+              image={itemData.item.imageUrl}
+              address={itemData.item.address}
               onPress={() => {
                 props.navigation.navigate("Details", {
-                  placeTitle: itemData.item.title,
-                  id: itemData.item.id,
+                  placeId: itemData.item.id,
                 });
               }}
             />
           )}
         />
-      )}
-      {notData && (
-        <View>
-          <ListItem
-            title={null}
-            address={null}
-            onPress={() => {}}
-            listItemStyle={{ backgroundColor: "#ccc" }}
-          />
-          <ListItem
-            title={null}
-            address={null}
-            onPress={() => {}}
-            listItemStyle={{ backgroundColor: "#ccc" }}
-          />
-          <ListItem
-            title={null}
-            address={null}
-            onPress={() => {}}
-            listItemStyle={{ backgroundColor: "#ccc" }}
-          />
-          <ListItem
-            title={null}
-            address={null}
-            onPress={() => {}}
-            listItemStyle={{ backgroundColor: "#ccc" }}
-          />
-          <ListItem
-            title={null}
-            address={null}
-            onPress={() => {}}
-            listItemStyle={{ backgroundColor: "#ccc" }}
-          />
+      ) : (
+        <View style={styles.centered}>
+          <Text style={styles.fallbackText}>Nothing to Show 🙅🏽‍♂️</Text>
         </View>
       )}
     </View>
@@ -120,6 +112,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 25,
+    marginHorizontal: 5,
+  },
+  centered: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  fallbackText: {
+    fontFamily: "apple",
+    fontSize: 15,
   },
 });
 

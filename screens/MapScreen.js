@@ -1,20 +1,76 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import React, { useState, useCallback, useEffect } from "react";
+import { Text, StyleSheet, TouchableOpacity } from "react-native";
+import MapView, { Marker } from "react-native-maps";
 
-const MapScreen = () => {
+const MapScreen = (props) => {
+  const [markedLocation, setMarkedLocation] = useState();
+  const mapRegion = {
+    latitude: 26.7124736,
+    longitude: 89.11257599999999,
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
+  };
+  const putMarker = (event) => {
+    console.log(event);
+    setMarkedLocation({
+      latitude: event.nativeEvent.coordinate.latitude,
+      longitude: event.nativeEvent.coordinate.longitude,
+    });
+  };
+
+  const saveLocationHandler = useCallback(() => {
+    if (!markedLocation) {
+      return;
+    }
+    props.navigation.navigate("Add", {
+      selectedLocation: markedLocation,
+    });
+  }, [markedLocation]);
+
+  useEffect(() => {
+    props.navigation.setParams({ saveLocation: saveLocationHandler });
+  }, [saveLocationHandler]);
+
+  let markerCoordinates;
+
+  if (markedLocation) {
+    markerCoordinates = {
+      latitude: markedLocation.latitude,
+      longitude: markedLocation.longitude,
+    };
+    console.log(markedLocation);
+  }
+
   return (
-    <View style={styles.screen}>
-      <Text> Map</Text>
-    </View>
+    <MapView style={styles.map} region={mapRegion} onPress={putMarker}>
+      {markerCoordinates && (
+        <Marker title="pinned location" coordinate={markerCoordinates} />
+      )}
+    </MapView>
   );
 };
 
+MapScreen.navigationOptions = (navData) => {
+  const saveFn = navData.navigation.getParam("saveLocation");
+  return {
+    headerRight: () => (
+      <TouchableOpacity onPress={saveFn} style={styles.headerButton}>
+        <Text style={styles.headerRightText}>save</Text>
+      </TouchableOpacity>
+    ),
+  };
+};
+
 const styles = StyleSheet.create({
-  screen: {
+  map: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "$ff",
+  },
+  headerButton: {
+    marginHorizontal: 20,
+  },
+  headerRightText: {
+    fontFamily: "apple",
+    fontSize: 16,
   },
 });
 

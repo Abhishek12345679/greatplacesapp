@@ -10,6 +10,17 @@ import { Provider } from "react-redux";
 import ReduxThunk from "redux-thunk";
 import PlacesReducer from "./store/Places-Reducer";
 
+import { init } from "./helpers/db";
+
+init()
+  .then(() => {
+    console.log("success");
+  })
+  .catch((err) => {
+    console.log("failed");
+    console.log(err);
+  });
+
 export default function App() {
   const [loaded, setLoaded] = useState(false);
 
