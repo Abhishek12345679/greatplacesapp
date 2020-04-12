@@ -12,6 +12,9 @@ import {
   TouchableOpacity,
 } from "react-native";
 
+import { Snackbar } from "react-native-paper";
+import Colors from "../constants/Colors";
+
 import { Ionicons } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
 import ListItem from "../components/ListItem";
@@ -27,7 +30,7 @@ const HomeScreen = (props) => {
   }, [dispatch]);
 
   const places = useSelector((state) => state.places.places);
-  const notData = !!(places.length === 0);
+  const noData = !!(places.length === 0);
   const [visible, setVisible] = useState(false);
   return (
     <View style={styles.screen}>
@@ -66,7 +69,7 @@ const HomeScreen = (props) => {
           </TouchableOpacity>
         </View>
       </View>
-      {!notData ? (
+      {!noData ? (
         <FlatList
           keyExtractor={(item) => item.id}
           data={places}
@@ -89,12 +92,15 @@ const HomeScreen = (props) => {
         </View>
       )}
       <Snackbar
-        visible={visible}
+        visible={visible && !noData}
         onDismiss={() => setVisible(false)}
-        duration={2000}
-        style={{ backgroundColor: Colors.primaryColor, height: 50 }}
+        duration={1500}
+        style={{
+          backgroundColor: Colors.primaryColor,
+          height: 60,
+        }}
       >
-        Added to cart 🎒
+        <Text style={{ textAlign: "center" }}>All the places removed</Text>
       </Snackbar>
     </View>
   );

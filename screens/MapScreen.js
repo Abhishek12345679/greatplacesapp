@@ -80,7 +80,6 @@ const styles = StyleSheet.create({
   },
   headerButton: {
     marginHorizontal: 20,
-    width:10
   },
   headerRightText: {
     fontFamily: "apple-bold",
