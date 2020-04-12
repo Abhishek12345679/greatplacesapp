@@ -42,7 +42,7 @@ const MapScreen = (props) => {
   }
 
   return (
-    <MapView style={styles.map} region={mapRegion} onPress={putMarker}>
+    <MapView style={styles.map} initialRegion={mapRegion} onPress={putMarker}>
       {markerCoordinates && (
         <Marker title="pinned location" coordinate={markerCoordinates} />
       )}
