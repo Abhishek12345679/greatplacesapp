@@ -61,6 +61,9 @@ MapScreen.navigationOptions = (navData) => {
   const readonly = navData.navigation.getParam("readonly");
   const markedLocation = navData.navigation.getParam("markedLoc");
   const saveFn = navData.navigation.getParam("saveLocation");
+  if (readonly) {
+    return;
+  }
   return {
     headerRight: () => (
       <TouchableOpacity

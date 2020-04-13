@@ -7,6 +7,11 @@ import {
   TouchableOpacity,
   Alert,
   Image,
+  ActionSheetIOS,
+  Platform,
+  ActivityIndicator,
+  ScrollView,
+  KeyboardAvoidingView,
 } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
@@ -26,6 +31,7 @@ const AddNewPlaceScreen = (props) => {
   const [title, setTitle] = useState("");
   const [imageUrl, setImageUrl] = useState();
   const [userLocation, setUserLocation] = useState();
+  const [isLoading, setIsLoading] = useState();
 
   const pinnedLocation = props.navigation.getParam("selectedLocation");
 
@@ -104,22 +110,42 @@ const AddNewPlaceScreen = (props) => {
   };
 
   const chooseLocationTypeHandler = () => {
-    Alert.alert(
-      "Choose",
-      "Do you want to choose a location on the map or give your current location",
-      [
-        { text: "use location", onPress: saveLocationhandler },
+    if (Platform.OS === "android") {
+      Alert.alert(
+        "Choose",
+        "Do you want to choose a location on the map or give your current location",
+        [
+          { text: "use location", onPress: saveLocationhandler },
+          {
+            text: "pick on map",
+            onPress: pickOnMapHandler,
+          },
+        ]
+      );
+    } else {
+      ActionSheetIOS.showActionSheetWithOptions(
         {
-          text: "pick on map",
-          onPress: pickOnMapHandler,
+          options: ["Use My Location", "Point on Map", "Cancel"],
+          cancelButtonIndex: 2,
+          title: "How would you like to get the loaction for the place",
+          tintColor: "#000",
+          message: "Pick one or cancel",
         },
-      ]
-    );
+        (buttonIndex) => {
+          if (buttonIndex === 0) {
+            saveLocationhandler();
+          } else if (buttonIndex === 1) {
+            pickOnMapHandler();
+          }
+        }
+      );
+    }
   };
 
   const saveLocationhandler = async () => {
     // staticMapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${userLocation.la},${userLocation.longitude}&zoom=12&size=400x300&maptype=roadmap&markers=color:red%7Clabel:C%7C${userLocation.latitude},${userLocation.longitude}&key=${CREDENTIALS.GOOGLE_API_KEY}`;
 
+    setIsLoading(true);
     const hasPermissions = await verifyMapPermissions();
 
     if (!hasPermissions) {
@@ -135,6 +161,7 @@ const AddNewPlaceScreen = (props) => {
         latitude: locationResponse.coords.latitude,
         longitude: locationResponse.coords.longitude,
       });
+      setIsLoading(false);
     } catch (err) {
       Alert.alert(
         "Could not fetch location!",
@@ -149,44 +176,54 @@ const AddNewPlaceScreen = (props) => {
   };
 
   return (
-    <View style={styles.screen}>
-      <TouchableOpacity
-        style={styles.addMap}
-        onPress={chooseLocationTypeHandler}
+    <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }} keyboardVerticalOffset={60}>
+      <ScrollView
+        style={styles.screen}
+        contentContainerStyle={{ alignItems: "center" }}
       >
-        {!!!userLocation ? (
-          <View style={styles.addMap}>
-            <Ionicons name="ios-map" size={40} color="#fff" />
-          </View>
-        ) : (
-          <Image
-            source={{
-              uri: `https://maps.googleapis.com/maps/api/staticmap?center=${userLocation.latitude},${userLocation.longitude}&zoom=13&size=400x300&maptype=roadmap&markers=color:red%7Clabel:A%7C${userLocation.latitude},${userLocation.longitude}&key=${CREDENTIALS.GOOGLE_API_KEY}`,
-            }}
-            style={{ width: "100%", height: "100%" }}
-          />
-        )}
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.addMap}
+          onPress={chooseLocationTypeHandler}
+        >
+          {!!!userLocation && !isLoading && (
+            <View style={styles.addMap}>
+              <Ionicons name="ios-map" size={40} color="#fff" />
+            </View>
+          )}
 
-      <TouchableOpacity onPress={saveImagehandler} style={styles.addImage}>
-        {!imageUrl ? (
-          <Ionicons name="ios-image" size={40} color="#000" />
-        ) : (
-          <Image style={styles.image} source={{ uri: imageUrl }} />
-        )}
-      </TouchableOpacity>
-      <View style={{ alignItems: "center", marginTop: 10 }}>
-        <TextInput
-          title={title}
-          onChangeText={textChangehandler}
-          style={styles.textInput}
-          placeholder="Title"
-        />
-      </View>
-      <TouchableOpacity onPress={savePlaceHandler} style={styles.saveButton}>
-        <Text style={{ ...styles.text, marginTop: 0 }}>Save</Text>
-      </TouchableOpacity>
-    </View>
+          {!!!!userLocation && !isLoading && (
+            <Image
+              source={{
+                uri: `https://maps.googleapis.com/maps/api/staticmap?center=${userLocation.latitude},${userLocation.longitude}&zoom=13&size=400x300&maptype=roadmap&markers=color:red%7Clabel:A%7C${userLocation.latitude},${userLocation.longitude}&key=${CREDENTIALS.GOOGLE_API_KEY}`,
+              }}
+              style={{ width: "100%", height: "100%" }}
+            />
+          )}
+
+          {isLoading && <ActivityIndicator size="large" color="#FFF" />}
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={saveImagehandler} style={styles.addImage}>
+          {!imageUrl ? (
+            <Ionicons name="ios-image" size={40} color="#000" />
+          ) : (
+            <Image style={styles.image} source={{ uri: imageUrl }} />
+          )}
+        </TouchableOpacity>
+        <View style={{ alignItems: "center", marginTop: 10 }}>
+          <TextInput
+            title={title}
+            onChangeText={textChangehandler}
+            style={styles.textInput}
+            placeholder="Title"
+            placeholderTextColor="#fff"
+          />
+        </View>
+        <TouchableOpacity onPress={savePlaceHandler} style={styles.saveButton}>
+          <Text style={{ ...styles.text, marginTop: 0 }}>Save</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -194,7 +231,6 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: "white",
-    alignItems: "center",
   },
   addMap: {
     width: "100%",
@@ -202,6 +238,13 @@ const styles = StyleSheet.create({
     backgroundColor: "black",
     justifyContent: "center",
     alignItems: "center",
+    shadowOpacity: 0.5,
+    shadowOffset: {
+      width: 1,
+      height: 3,
+    },
+    elevation: 50,
+    shadowRadius: 20,
   },
   addImage: {
     width: 150,
@@ -218,6 +261,7 @@ const styles = StyleSheet.create({
     marginTop: -50,
     borderWidth: 2,
     borderColor: "#fff",
+    elevation: 50,
   },
   actionBtn: {
     width: 50,
@@ -234,10 +278,20 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   textInput: {
-    borderBottomWidth: 2,
+    borderWidth: 2,
     textAlign: "center",
     padding: 10,
-    width: 200,
+    width: 300,
+    borderRadius: 20,
+    backgroundColor: Colors.primaryColor,
+    color: Colors.accentColor,
+    shadowOpacity: 0.4,
+    shadowOffset: {
+      width: 3,
+      height: 5,
+    },
+    borderWidth: 2,
+    elevation: 50,
   },
   image: {
     flex: 1,
@@ -255,6 +309,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: 30,
+    shadowOpacity: 0.5,
+    shadowOffset: {
+      width: 6,
+      height: 4,
+    },
+    elevation: 50,
   },
 });
 

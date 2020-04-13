@@ -34,7 +34,7 @@ const HomeScreen = (props) => {
   const [visible, setVisible] = useState(false);
   return (
     <View style={styles.screen}>
-      <StatusBar barStyle="dark-content" />
+      {Platform.OS === "ios" ? <StatusBar barStyle="dark-content" /> : null}
       <View style={styles.header}>
         <View style={styles.headerTextContainer}>
           <Text style={styles.headerText}>Great</Text>
@@ -53,6 +53,7 @@ const HomeScreen = (props) => {
                 .then(() => setVisible(true))
                 .catch((err) => console.log(err));
             }}
+            disabled={noData}
           >
             <View style={styles.actionbtn}>
               <Ionicons name="ios-trash" size={23} color="red" />
@@ -81,6 +82,7 @@ const HomeScreen = (props) => {
               onPress={() => {
                 props.navigation.navigate("Details", {
                   placeId: itemData.item.id,
+                  placeTitle: itemData.item.title,
                 });
               }}
             />
@@ -92,7 +94,7 @@ const HomeScreen = (props) => {
         </View>
       )}
       <Snackbar
-        visible={visible && !noData}
+        visible={visible}
         onDismiss={() => setVisible(false)}
         duration={1500}
         style={{

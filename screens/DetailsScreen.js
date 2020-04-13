@@ -1,10 +1,15 @@
 import React from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+} from "react-native";
 import { useSelector } from "react-redux";
 
 import CREDENTIALS from "../env";
-import { ScrollView } from "react-native";
-import Colors from "../constants/Colors";
 
 const DetailsScreen = (props) => {
   const selectedPlaceId = props.navigation.getParam("placeId");
@@ -22,23 +27,31 @@ const DetailsScreen = (props) => {
   };
 
   return (
-    <View style={styles.screen}>
-      <TouchableOpacity style={styles.addMap} onPress={gotoMap}>
-        <Image
-          source={{
-            uri: `https://maps.googleapis.com/maps/api/staticmap?center=${selectedPlace.latitude},${selectedPlace.longitude}&zoom=13&size=400x300&maptype=roadmap&markers=color:red%7Clabel:A%7C${selectedPlace.latitude},${selectedPlace.longitude}&key=${CREDENTIALS.GOOGLE_API_KEY}`,
-          }}
-          style={{ width: "100%", height: "100%" }}
-        />
-      </TouchableOpacity>
+    <KeyboardAvoidingView behavior="height" style={{ flex: 1 }}>
+      <View style={styles.screen}>
+        <TouchableOpacity style={styles.addMap} onPress={gotoMap}>
+          <Image
+            source={{
+              uri: `https://maps.googleapis.com/maps/api/staticmap?center=${selectedPlace.latitude},${selectedPlace.longitude}&zoom=13&size=400x300&maptype=roadmap&markers=color:red%7Clabel:A%7C${selectedPlace.latitude},${selectedPlace.longitude}&key=${CREDENTIALS.GOOGLE_API_KEY}`,
+            }}
+            style={{ width: "100%", height: "100%" }}
+          />
+        </TouchableOpacity>
 
-      <TouchableOpacity style={styles.addImage}>
-        <Image style={styles.image} source={{ uri: selectedPlace.imageUrl }} />
-      </TouchableOpacity>
-      <View style={styles.addressContainer}>
-        <Text style={styles.text}>{selectedPlace.address}</Text>
+        <TouchableOpacity style={styles.addImage}>
+          <Image
+            style={styles.image}
+            source={{ uri: selectedPlace.imageUrl }}
+          />
+        </TouchableOpacity>
+        <View style={styles.title}>
+          <Text style={styles.titleText}>{selectedPlace.title}</Text>
+        </View>
+        <View style={styles.addressContainer}>
+          <Text style={styles.text}>{selectedPlace.address}</Text>
+        </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -99,14 +112,26 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
   },
   addressContainer: {
-    width: "75%",
-    height: 100,
+    width: "90%",
+    height: 75,
     backgroundColor: "#000",
     justifyContent: "center",
     alignItems: "center",
     padding: 10,
-    marginTop: 10,
+    marginTop: 15,
     borderRadius: 15,
+    borderColor: "orange",
+    borderWidth: 2,
+  },
+  title: {
+    width: "100%",
+    height: 50,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  titleText: {
+    fontFamily: "apple-bold",
+    fontSize: 25,
   },
 });
 export default DetailsScreen;
